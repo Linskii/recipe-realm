@@ -1,17 +1,64 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 
-export default function RecipeCard({ recipe }) {
+export default function RecipeCard({
+  recipe,
+  folders = [],
+  recipeFolders = [],
+  onAddToFolder,
+  onRemoveFromFolder
+}) {
   const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
+  const [showFolderMenu, setShowFolderMenu] = useState(false);
+  const menuRef = useRef(null);
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setShowFolderMenu(false);
+      }
+    };
+
+    if (showFolderMenu) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showFolderMenu]);
+
+  const handleFolderToggle = (e, folderId) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    const isInFolder = recipeFolders.some((f) => f.id === folderId);
+
+    if (isInFolder) {
+      onRemoveFromFolder(recipe.id, folderId);
+    } else {
+      onAddToFolder(recipe.id, folderId);
+    }
+  };
+
+  const toggleFolderMenu = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowFolderMenu(!showFolderMenu);
+  };
+
+  const hasFolderFeature = folders && folders.length > 0 && onAddToFolder && onRemoveFromFolder;
 
   return (
-    <Link to={`/recipe/${recipe.id}`}>
-      <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
-        <div className="h-48 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
-          <span className="text-6xl">🥗</span>
-        </div>
+    <div className="relative">
+      <Link to={`/recipe/${recipe.id}`}>
+        <div className="bg-white rounded-lg shadow-sm hover:shadow-md transition-shadow overflow-hidden">
+          <div className="h-48 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
+            <span className="text-6xl">🥗</span>
+          </div>
 
-        <div className="p-4">
+          <div className="p-4">
           <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
             {recipe.title}
           </h3>
@@ -85,5 +132,62 @@ export default function RecipeCard({ recipe }) {
         </div>
       </div>
     </Link>
+
+    {hasFolderFeature && (
+      <div className="absolute top-2 right-2" ref={menuRef}>
+        <button
+          onClick={toggleFolderMenu}
+          className="w-9 h-9 bg-white rounded-full shadow-md hover:shadow-lg transition-shadow flex items-center justify-center text-gray-600 hover:text-gray-900"
+          aria-label="Add to folder"
+        >
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"
+            />
+          </svg>
+        </button>
+
+        {showFolderMenu && (
+          <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10">
+            <div className="px-3 py-2 text-xs font-semibold text-gray-500 border-b border-gray-200">
+              Add to Folder
+            </div>
+            <div className="max-h-64 overflow-y-auto">
+              {folders.map((folder) => {
+                const isInFolder = recipeFolders.some((f) => f.id === folder.id);
+                return (
+                  <button
+                    key={folder.id}
+                    onClick={(e) => handleFolderToggle(e, folder.id)}
+                    className="w-full px-3 py-2 text-left text-sm hover:bg-gray-50 flex items-center justify-between"
+                  >
+                    <span className="text-gray-700">{folder.name}</span>
+                    {isInFolder && (
+                      <svg
+                        className="w-4 h-4 text-green-600"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    )}
+  </div>
   );
 }

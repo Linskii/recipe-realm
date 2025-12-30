@@ -110,54 +110,6 @@ The app will be available at `http://localhost:5173`
 
 ## Firebase Configuration
 
-### Firestore Security Rules
-
-Apply these security rules in Firebase Console → Firestore → Rules:
-
-```javascript
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-
-    // Users: anyone can read, only owner can write
-    match /users/{userId} {
-      allow read: if true;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow update: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // User subcollections: only owner
-    match /users/{userId}/{subcollection}/{docId} {
-      allow read, write: if request.auth != null && request.auth.uid == userId;
-    }
-
-    // Recipes: public readable, owner writable
-    match /recipes/{recipeId} {
-      allow read: if resource.data.isPublic == true ||
-                    (request.auth != null && resource.data.createdBy == request.auth.uid);
-      allow create: if request.auth != null &&
-                      request.resource.data.createdBy == request.auth.uid;
-      allow update, delete: if request.auth != null &&
-                              resource.data.createdBy == request.auth.uid;
-    }
-
-    // Ratings: authenticated users can create/update their own
-    match /ratings/{ratingId} {
-      allow read: if true;
-      allow create, update: if request.auth != null &&
-                              ratingId.matches(request.auth.uid + '_.*');
-    }
-
-    // Follows: authenticated users can manage their own follows
-    match /follows/{followId} {
-      allow read: if true;
-      allow create, delete: if request.auth != null &&
-                              followId.matches(request.auth.uid + '_.*');
-    }
-  }
-}
-```
-
 ### Required Firestore Indexes
 
 Create these composite indexes in Firebase Console → Firestore → Indexes:

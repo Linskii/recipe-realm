@@ -91,6 +91,32 @@ export default function MyRecipes() {
     }
   };
 
+  const handleAddToFolder = async (recipeId, folderId) => {
+    try {
+      await addRecipeToFolder(user.uid, folderId, recipeId);
+      showToast('Recipe added to folder', 'success');
+      loadData();
+    } catch (error) {
+      console.error('Error adding recipe to folder:', error);
+      showToast(error.message || 'Failed to add recipe to folder', 'error');
+    }
+  };
+
+  const handleRemoveFromFolder = async (recipeId, folderId) => {
+    try {
+      await removeRecipeFromFolder(user.uid, folderId, recipeId);
+      showToast('Recipe removed from folder', 'success');
+      loadData();
+    } catch (error) {
+      console.error('Error removing recipe from folder:', error);
+      showToast(error.message || 'Failed to remove recipe from folder', 'error');
+    }
+  };
+
+  const getRecipeFolders = (recipeId) => {
+    return folders.filter((folder) => folder.recipeIds?.includes(recipeId));
+  };
+
   const getFilteredRecipes = () => {
     if (!selectedFolder) {
       return recipes;
@@ -229,12 +255,21 @@ export default function MyRecipes() {
           <div className="text-center py-16">
             <div className="text-6xl mb-4">📁</div>
             <h2 className="text-2xl font-semibold text-gray-900 mb-2">No recipes in this folder</h2>
-            <p className="text-gray-600 mb-6">Drag recipes here or select a different folder</p>
+            <p className="text-gray-600 mb-6">
+              Add recipes to this folder using the folder menu on each recipe card
+            </p>
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredRecipes.map((recipe) => (
-              <RecipeCard key={recipe.id} recipe={recipe} />
+              <RecipeCard
+                key={recipe.id}
+                recipe={recipe}
+                folders={folders}
+                recipeFolders={getRecipeFolders(recipe.id)}
+                onAddToFolder={handleAddToFolder}
+                onRemoveFromFolder={handleRemoveFromFolder}
+              />
             ))}
           </div>
         )}

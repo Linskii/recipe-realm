@@ -4,6 +4,7 @@ import StarRating from './StarRating.jsx';
 import { scaleAllIngredients } from '../../utils/ingredientScaler.js';
 import { getUserRating, updateRecipeRating } from '../../services/ratingService.js';
 import { copyRecipe } from '../../services/recipeService.js';
+import { addRecipeIngredientsToList, getCommonFoods } from '../../services/shoppingService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 import Button from '../ui/Button.jsx';
@@ -16,6 +17,7 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
   const [userRating, setUserRating] = useState(null);
   const [isRatingLoading, setIsRatingLoading] = useState(false);
   const [isCopying, setIsCopying] = useState(false);
+  const [isAddingToList, setIsAddingToList] = useState(false);
 
   const scaledIngredients = recipe.ingredients
     ? scaleAllIngredients(recipe.ingredients, recipe.servings || 1, currentServings)
@@ -99,6 +101,38 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
     }
   };
 
+  const handleAddToShoppingList = async () => {
+    if (!user) {
+      showToast('Please log in to use shopping list', 'error');
+      return;
+    }
+
+    if (!recipe.ingredients || recipe.ingredients.length === 0) {
+      showToast('This recipe has no ingredients to add', 'info');
+      return;
+    }
+
+    setIsAddingToList(true);
+    try {
+      // Get user's common foods to filter them out
+      const commonFoods = await getCommonFoods(user.uid);
+      const commonFoodNames = commonFoods.map((food) => food.name);
+
+      // Extract ingredient names from the scaled ingredients
+      const ingredientNames = scaledIngredients.map((ing) => ing.name);
+
+      // Add ingredients to shopping list
+      await addRecipeIngredientsToList(user.uid, ingredientNames, currentServings, commonFoodNames);
+
+      showToast('Ingredients added to shopping list!', 'success');
+    } catch (error) {
+      console.error('Error adding to shopping list:', error);
+      showToast(error.message || 'Failed to add to shopping list', 'error');
+    } finally {
+      setIsAddingToList(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <div className="h-64 bg-gradient-to-br from-green-100 to-green-200 flex items-center justify-center">
@@ -109,10 +143,15 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
         <div className="mb-6">
           <div className="flex items-start justify-between gap-4 mb-2">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{recipe.title}</h1>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2 justify-end">
               <Button onClick={handleShareRecipe} variant="secondary" size="sm">
                 Share
               </Button>
+              {user && (
+                <Button onClick={handleAddToShoppingList} disabled={isAddingToList} variant="secondary" size="sm">
+                  {isAddingToList ? 'Adding...' : 'Add to Shopping List'}
+                </Button>
+              )}
               {user && user.uid !== recipe.createdBy && (
                 <Button onClick={handleCopyRecipe} disabled={isCopying} size="sm">
                   {isCopying ? 'Saving...' : 'Save to My Recipes'}
