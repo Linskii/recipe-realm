@@ -15,6 +15,7 @@ import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
 import Button from '../components/ui/Button.jsx';
 import Input from '../components/ui/Input.jsx';
 import Modal from '../components/ui/Modal.jsx';
+import AppNav from '../components/layout/AppNav.jsx';
 
 export default function MyRecipes() {
   const { user } = useAuth();
@@ -135,22 +136,7 @@ export default function MyRecipes() {
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <nav className="bg-white shadow-sm">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="flex justify-between items-center h-16">
-              <Link to="/" className="text-2xl font-bold text-green-600">
-                Recipe Realm
-              </Link>
-              <div className="flex items-center gap-4">
-                <Link to="/dashboard">
-                  <Button variant="secondary" size="sm">
-                    Dashboard
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        </nav>
+        <AppNav />
 
         <div className="flex items-center justify-center py-16">
           <LoadingSpinner size="lg" />
@@ -161,22 +147,7 @@ export default function MyRecipes() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-green-600">
-              Recipe Realm
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link to="/dashboard">
-                <Button variant="secondary" size="sm">
-                  Dashboard
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <AppNav />
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">

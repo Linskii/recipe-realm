@@ -1,9 +1,16 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useEffect } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 
 export default function Home() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard');
+    }
+  }, [user, navigate]);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -17,33 +24,16 @@ export default function Home() {
           </p>
 
           <div className="flex justify-center gap-4">
-            {user ? (
-              <>
-                <Link to="/dashboard">
-                  <button className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors">
-                    Go to Dashboard
-                  </button>
-                </Link>
-                <Link to="/browse">
-                  <button className="bg-gray-200 text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors">
-                    Browse Recipes
-                  </button>
-                </Link>
-              </>
-            ) : (
-              <>
-                <Link to="/signup">
-                  <button className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors">
-                    Get Started
-                  </button>
-                </Link>
-                <Link to="/login">
-                  <button className="bg-gray-200 text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors">
-                    Login
-                  </button>
-                </Link>
-              </>
-            )}
+            <Link to="/signup">
+              <button className="bg-green-600 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-700 transition-colors">
+                Get Started
+              </button>
+            </Link>
+            <Link to="/login">
+              <button className="bg-gray-200 text-gray-900 px-6 py-3 rounded-lg font-medium hover:bg-gray-300 transition-colors">
+                Login
+              </button>
+            </Link>
           </div>
         </div>
 

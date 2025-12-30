@@ -3,12 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
 import { getPublicRecipes } from '../services/recipeService.js';
-import { logout } from '../services/authService.js';
 import { PREDEFINED_TAGS } from '../constants/tags.js';
 import Button from '../components/ui/Button.jsx';
 import Input from '../components/ui/Input.jsx';
 import RecipeCard from '../components/recipes/RecipeCard.jsx';
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
+import AppNav from '../components/layout/AppNav.jsx';
 
 export default function Browse() {
   const { user } = useAuth();
@@ -35,17 +35,6 @@ export default function Browse() {
       showToast('Failed to load recipes', 'error');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      showToast('Logged out successfully', 'success');
-      navigate('/');
-    } catch (error) {
-      console.error('Logout failed:', error);
-      showToast('Failed to log out', 'error');
     }
   };
 
@@ -104,45 +93,7 @@ export default function Browse() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-green-600">
-              Recipe Realm
-            </Link>
-            <div className="flex items-center gap-4">
-              {user ? (
-                <>
-                  <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">
-                    Dashboard
-                  </Link>
-                  <Link to="/my-recipes" className="text-gray-600 hover:text-gray-900">
-                    My Recipes
-                  </Link>
-                  <Link to="/shopping-list" className="text-gray-600 hover:text-gray-900">
-                    Shopping List
-                  </Link>
-                  <span className="text-gray-700">@{user.username}</span>
-                  <Button onClick={handleLogout} variant="secondary" size="sm">
-                    Logout
-                  </Button>
-                </>
-              ) : (
-                <>
-                  <Link to="/login">
-                    <Button variant="secondary" size="sm">
-                      Login
-                    </Button>
-                  </Link>
-                  <Link to="/signup">
-                    <Button size="sm">Sign Up</Button>
-                  </Link>
-                </>
-              )}
-            </div>
-          </div>
-        </div>
-      </nav>
+      <AppNav />
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Browse Recipes</h1>

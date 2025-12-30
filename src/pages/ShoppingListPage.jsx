@@ -12,12 +12,12 @@ import {
   addCommonFood,
   removeCommonFood,
 } from '../services/shoppingService.js';
-import { logout } from '../services/authService.js';
 import { useNavigate } from 'react-router-dom';
 import Button from '../components/ui/Button.jsx';
 import Input from '../components/ui/Input.jsx';
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
 import Modal from '../components/ui/Modal.jsx';
+import AppNav from '../components/layout/AppNav.jsx';
 
 export default function ShoppingListPage() {
   const { user } = useAuth();
@@ -142,17 +142,6 @@ export default function ShoppingListPage() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await logout();
-      showToast('Logged out successfully', 'success');
-      navigate('/');
-    } catch (error) {
-      console.error('Logout failed:', error);
-      showToast('Failed to log out', 'error');
-    }
-  };
-
   const handleAddItem = async (e) => {
     e.preventDefault();
 
@@ -217,30 +206,7 @@ export default function ShoppingListPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <Link to="/" className="text-2xl font-bold text-green-600">
-              Recipe Realm
-            </Link>
-            <div className="flex items-center gap-4">
-              <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">
-                Dashboard
-              </Link>
-              <Link to="/my-recipes" className="text-gray-600 hover:text-gray-900">
-                My Recipes
-              </Link>
-              <Link to="/browse" className="text-gray-600 hover:text-gray-900">
-                Browse
-              </Link>
-              <span className="text-gray-700">@{user?.username}</span>
-              <Button onClick={handleLogout} variant="secondary" size="sm">
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+      <AppNav />
 
       <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-6">
