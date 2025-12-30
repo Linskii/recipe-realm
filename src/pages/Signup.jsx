@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { signUp, getErrorMessage } from '../services/authService.js';
 import {
@@ -7,12 +7,14 @@ import {
   validateUsername,
 } from '../utils/validators.js';
 import { useToast } from '../context/ToastContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import Input from '../components/ui/Input.jsx';
 import Button from '../components/ui/Button.jsx';
 
 export default function Signup() {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -22,6 +24,13 @@ export default function Signup() {
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  // Redirect to dashboard if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -62,7 +71,7 @@ export default function Signup() {
       setLoading(true);
       await signUp(formData.email, formData.password, formData.username, formData.displayName);
       showToast('Account created successfully!', 'success');
-      navigate('/dashboard');
+      // Navigation will happen automatically via useEffect when auth state updates
     } catch (error) {
       console.error('Signup failed:', error);
       const message = getErrorMessage(error);

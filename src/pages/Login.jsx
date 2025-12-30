@@ -1,20 +1,29 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { login, getErrorMessage } from '../services/authService.js';
 import { validateEmail, validatePassword } from '../utils/validators.js';
 import { useToast } from '../context/ToastContext.jsx';
+import { useAuth } from '../context/AuthContext.jsx';
 import Input from '../components/ui/Input.jsx';
 import Button from '../components/ui/Button.jsx';
 
 export default function Login() {
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
+
+  // Redirect to dashboard if user is already logged in
+  useEffect(() => {
+    if (user) {
+      navigate('/dashboard', { replace: true });
+    }
+  }, [user, navigate]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -44,7 +53,7 @@ export default function Login() {
       setLoading(true);
       await login(formData.email, formData.password);
       showToast('Welcome back!', 'success');
-      navigate('/dashboard');
+      // Navigation will happen automatically via useEffect when auth state updates
     } catch (error) {
       console.error('Login failed:', error);
       const message = getErrorMessage(error);
