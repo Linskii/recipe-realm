@@ -211,9 +211,9 @@ export default function ShoppingListPage() {
       <AppNav />
 
       <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">{t('shoppingList.title')}</h1>
-          <div className="flex gap-2">
+        <div className="mb-6">
+          <h1 className="text-3xl font-bold text-gray-900 mb-3">{t('shoppingList.title')}</h1>
+          <div className="flex flex-wrap gap-2">
             <Button onClick={() => setShowRecurringModal(true)} variant="secondary" size="sm">
               {t('shoppingList.recurringItems')}
             </Button>

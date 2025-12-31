@@ -152,15 +152,15 @@ export default function MyRecipes() {
       <AppNav />
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between mb-8">
-          <div>
+        <div className="mb-8">
+          <div className="mb-3">
             <h1 className="text-3xl font-bold text-gray-900">{t('myRecipes.title')}</h1>
             <p className="text-gray-600 mt-1">
               {filteredRecipes.length} {filteredRecipes.length === 1 ? t('myRecipes.recipe') : t('myRecipes.recipes')}
               {selectedFolder && ` ${t('myRecipes.inThisFolder')}`}
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
             <Button variant="secondary" onClick={() => setShowNewFolderModal(true)}>
               {t('myRecipes.newFolder')}
             </Button>
