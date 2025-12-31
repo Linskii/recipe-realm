@@ -11,6 +11,7 @@ import { useAuth } from '../context/AuthContext.jsx';
 import { useTranslation } from '../hooks/useTranslation.js';
 import Input from '../components/ui/Input.jsx';
 import Button from '../components/ui/Button.jsx';
+import LanguageSwitcher from '../components/ui/LanguageSwitcher.jsx';
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -87,6 +88,9 @@ export default function Signup() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8">
+        <div className="flex justify-center mb-4">
+          <LanguageSwitcher />
+        </div>
         <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">{t('auth.signup')}</h1>
 
         {errors.general && (

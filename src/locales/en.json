@@ -30,7 +30,7 @@
     "back": "Back",
     "showing": "Showing {{count}} of {{total}} recipe",
     "showing_plural": "Showing {{count}} of {{total}} recipes",
-    "getStarted": "Get Started",
+    "getStarted": "Register",
     "addStep": "Add Step",
     "unknown": "Unknown",
     "error": "Error",
