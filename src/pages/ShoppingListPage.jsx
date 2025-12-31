@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { useTranslation } from '../hooks/useTranslation.js';
 import { useShoppingList } from '../hooks/useShoppingList.js';
 import {
   getRecurringItems,
@@ -22,6 +23,7 @@ import AppNav from '../components/layout/AppNav.jsx';
 export default function ShoppingListPage() {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const {
     items,
@@ -77,7 +79,7 @@ export default function ShoppingListPage() {
 
   const handleAddRecurring = async () => {
     if (!newRecurringName.trim()) {
-      showToast('Please enter an item name', 'error');
+      showToast(t('validation.itemNameRequired'), 'error');
       return;
     }
 
@@ -91,7 +93,7 @@ export default function ShoppingListPage() {
         },
         newRecurringFrequency
       );
-      showToast('Recurring item added', 'success');
+      showToast(t('success.recurringAdded'), 'success');
       setNewRecurringName('');
       setNewRecurringQuantity('');
       setNewRecurringFrequency(7);
@@ -99,46 +101,46 @@ export default function ShoppingListPage() {
       loadRecurringAndCommonFoods();
     } catch (error) {
       console.error('Error adding recurring item:', error);
-      showToast(error.message || 'Failed to add recurring item', 'error');
+      showToast(error.message || t('error.failedToAddRecurring'), 'error');
     }
   };
 
   const handleRemoveRecurring = async (itemId) => {
     try {
       await removeRecurringItem(user.uid, itemId);
-      showToast('Recurring item removed', 'success');
+      showToast(t('success.recurringRemoved'), 'success');
       loadRecurringAndCommonFoods();
     } catch (error) {
       console.error('Error removing recurring item:', error);
-      showToast(error.message || 'Failed to remove recurring item', 'error');
+      showToast(error.message || t('error.failedToRemoveRecurring'), 'error');
     }
   };
 
   const handleAddCommonFood = async () => {
     if (!newCommonFood.trim()) {
-      showToast('Please enter a food name', 'error');
+      showToast(t('validation.foodNameRequired'), 'error');
       return;
     }
 
     try {
       await addCommonFood(user.uid, newCommonFood);
-      showToast('Common food added', 'success');
+      showToast(t('success.commonFoodAdded'), 'success');
       setNewCommonFood('');
       loadRecurringAndCommonFoods();
     } catch (error) {
       console.error('Error adding common food:', error);
-      showToast(error.message || 'Failed to add common food', 'error');
+      showToast(error.message || t('error.failedToAddCommonFood'), 'error');
     }
   };
 
   const handleRemoveCommonFood = async (foodId) => {
     try {
       await removeCommonFood(user.uid, foodId);
-      showToast('Common food removed', 'success');
+      showToast(t('success.commonFoodRemoved'), 'success');
       loadRecurringAndCommonFoods();
     } catch (error) {
       console.error('Error removing common food:', error);
-      showToast(error.message || 'Failed to remove common food', 'error');
+      showToast(error.message || t('error.failedToRemoveCommonFood'), 'error');
     }
   };
 
@@ -146,7 +148,7 @@ export default function ShoppingListPage() {
     e.preventDefault();
 
     if (!newItemName.trim()) {
-      showToast('Please enter an item name', 'error');
+      showToast(t('validation.itemNameRequired'), 'error');
       return;
     }
 
@@ -159,10 +161,10 @@ export default function ShoppingListPage() {
       setNewItemName('');
       setNewItemQuantity('');
       setNewItemCategory('other');
-      showToast('Item added to shopping list', 'success');
+      showToast(t('success.itemAdded'), 'success');
     } catch (error) {
       console.error('Failed to add item:', error);
-      showToast(error.message || 'Failed to add item', 'error');
+      showToast(error.message || t('error.failedToAddItem'), 'error');
     }
   };
 
@@ -171,33 +173,33 @@ export default function ShoppingListPage() {
       await toggleShoppingItem(itemId);
     } catch (error) {
       console.error('Failed to toggle item:', error);
-      showToast(error.message || 'Failed to toggle item', 'error');
+      showToast(error.message || t('error.failedToToggleItem'), 'error');
     }
   };
 
   const handleRemoveItem = async (itemId) => {
     try {
       await removeShoppingItem(itemId);
-      showToast('Item removed', 'success');
+      showToast(t('success.itemRemoved'), 'success');
     } catch (error) {
       console.error('Failed to remove item:', error);
-      showToast(error.message || 'Failed to remove item', 'error');
+      showToast(error.message || t('error.failedToRemoveItem'), 'error');
     }
   };
 
   const handleClearChecked = async () => {
     const checkedCount = items.filter((item) => item.checked).length;
     if (checkedCount === 0) {
-      showToast('No checked items to clear', 'info');
+      showToast(t('shoppingList.noCheckedItems'), 'info');
       return;
     }
 
     try {
       await clearCheckedItems();
-      showToast(`Cleared ${checkedCount} checked item(s)`, 'success');
+      showToast(t('success.itemsCleared', { count: checkedCount }), 'success');
     } catch (error) {
       console.error('Failed to clear checked items:', error);
-      showToast(error.message || 'Failed to clear checked items', 'error');
+      showToast(error.message || t('error.failedToClearItems'), 'error');
     }
   };
 
@@ -210,68 +212,68 @@ export default function ShoppingListPage() {
 
       <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-900">Shopping List</h1>
+          <h1 className="text-3xl font-bold text-gray-900">{t('shoppingList.title')}</h1>
           <div className="flex gap-2">
             <Button onClick={() => setShowRecurringModal(true)} variant="secondary" size="sm">
-              Recurring Items
+              {t('shoppingList.recurringItems')}
             </Button>
             <Button onClick={() => setShowCommonFoodsModal(true)} variant="secondary" size="sm">
-              Common Foods
+              {t('shoppingList.commonFoods')}
             </Button>
             {checkedItems.length > 0 && (
               <Button onClick={handleClearChecked} variant="secondary" size="sm">
-                Clear Checked ({checkedItems.length})
+                {t('shoppingList.clearChecked')} ({checkedItems.length})
               </Button>
             )}
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-          <h2 className="text-lg font-semibold mb-4">Add New Item</h2>
+          <h2 className="text-lg font-semibold mb-4">{t('shoppingList.addItem')}</h2>
           <form onSubmit={handleAddItem} className="space-y-4">
             <div className="grid md:grid-cols-3 gap-4">
               <div className="md:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Item Name
+                  {t('shoppingList.itemName')}
                 </label>
                 <Input
                   type="text"
                   value={newItemName}
                   onChange={(e) => setNewItemName(e.target.value)}
-                  placeholder="e.g., Tomatoes"
+                  placeholder={t('shoppingList.itemNamePlaceholder')}
                   required
                 />
               </div>
               <div className="md:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Quantity (optional)
+                  {t('shoppingList.quantity')}
                 </label>
                 <Input
                   type="text"
                   value={newItemQuantity}
                   onChange={(e) => setNewItemQuantity(e.target.value)}
-                  placeholder="e.g., 2 lbs"
+                  placeholder={t('shoppingList.quantityPlaceholder')}
                 />
               </div>
               <div className="md:col-span-1">
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Category
+                  {t('shoppingList.category')}
                 </label>
                 <select
                   value={newItemCategory}
                   onChange={(e) => setNewItemCategory(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
-                  <option value="produce">Produce</option>
-                  <option value="dairy">Dairy</option>
-                  <option value="pantry">Pantry</option>
-                  <option value="frozen">Frozen</option>
-                  <option value="recipe">Recipe</option>
-                  <option value="other">Other</option>
+                  <option value="produce">{t('shoppingList.categories.produce')}</option>
+                  <option value="dairy">{t('shoppingList.categories.dairy')}</option>
+                  <option value="pantry">{t('shoppingList.categories.pantry')}</option>
+                  <option value="frozen">{t('shoppingList.categories.frozen')}</option>
+                  <option value="recipe">{t('shoppingList.categories.recipe')}</option>
+                  <option value="other">{t('shoppingList.categories.other')}</option>
                 </select>
               </div>
             </div>
-            <Button type="submit">Add to List</Button>
+            <Button type="submit">{t('shoppingList.addToList')}</Button>
           </form>
         </div>
 
@@ -282,14 +284,14 @@ export default function ShoppingListPage() {
         ) : items.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             <div className="text-6xl mb-4">🛒</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No items yet</h3>
-            <p className="text-gray-600">Add items to your shopping list above.</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('shoppingList.noItems')}</h3>
+            <p className="text-gray-600">{t('shoppingList.startAdding')}</p>
           </div>
         ) : (
           <>
             {uncheckedItems.length > 0 && (
               <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-                <h2 className="text-lg font-semibold mb-4">To Buy ({uncheckedItems.length})</h2>
+                <h2 className="text-lg font-semibold mb-4">{t('shoppingList.toBuy')} ({uncheckedItems.length})</h2>
                 <div className="space-y-2">
                   {uncheckedItems.map((item) => (
                     <ShoppingListItem
@@ -306,7 +308,7 @@ export default function ShoppingListPage() {
             {checkedItems.length > 0 && (
               <div className="bg-white rounded-lg shadow-sm p-6">
                 <h2 className="text-lg font-semibold mb-4 text-gray-500">
-                  Checked ({checkedItems.length})
+                  {t('shoppingList.checked')} ({checkedItems.length})
                 </h2>
                 <div className="space-y-2">
                   {checkedItems.map((item) => (
@@ -327,34 +329,34 @@ export default function ShoppingListPage() {
       <Modal
         isOpen={showRecurringModal}
         onClose={() => setShowRecurringModal(false)}
-        title="Recurring Items"
+        title={t('shoppingList.recurringItems')}
       >
         <div className="space-y-4">
           <div>
             <p className="text-sm text-gray-600 mb-4">
-              Add items that you buy regularly. They'll be automatically added to your shopping list based on the frequency you set.
+              {t('shoppingList.recurringDescription')}
             </p>
             <div className="space-y-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Item Name</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('shoppingList.itemName')}</label>
                 <Input
                   type="text"
                   value={newRecurringName}
                   onChange={(e) => setNewRecurringName(e.target.value)}
-                  placeholder="e.g., Milk"
+                  placeholder={t('shoppingList.recurringNamePlaceholder')}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Quantity (optional)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('shoppingList.quantity')}</label>
                 <Input
                   type="text"
                   value={newRecurringQuantity}
                   onChange={(e) => setNewRecurringQuantity(e.target.value)}
-                  placeholder="e.g., 1 gallon"
+                  placeholder={t('shoppingList.recurringQuantityPlaceholder')}
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Frequency (days)</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('shoppingList.frequency')}</label>
                 <Input
                   type="number"
                   value={newRecurringFrequency}
@@ -362,13 +364,13 @@ export default function ShoppingListPage() {
                   min="1"
                 />
               </div>
-              <Button onClick={handleAddRecurring}>Add Recurring Item</Button>
+              <Button onClick={handleAddRecurring}>{t('shoppingList.addRecurringItem')}</Button>
             </div>
           </div>
 
           {recurringItems.length > 0 && (
             <div className="border-t pt-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Your Recurring Items</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">{t('shoppingList.yourRecurringItems')}</h3>
               <div className="space-y-2">
                 {recurringItems.map((item) => (
                   <div
@@ -378,7 +380,7 @@ export default function ShoppingListPage() {
                     <div>
                       <div className="font-medium text-gray-900">{item.name}</div>
                       <div className="text-sm text-gray-600">
-                        Every {item.frequencyDays} day{item.frequencyDays !== 1 ? 's' : ''}
+                        {t('shoppingList.every')} {item.frequencyDays} {t(item.frequencyDays !== 1 ? 'shoppingList.days' : 'shoppingList.day')}
                         {item.quantity && ` • ${item.quantity}`}
                       </div>
                     </div>
@@ -386,7 +388,7 @@ export default function ShoppingListPage() {
                       onClick={() => handleRemoveRecurring(item.id)}
                       className="text-red-600 hover:text-red-800"
                     >
-                      Remove
+                      {t('common.remove')}
                     </button>
                   </div>
                 ))}
@@ -399,27 +401,27 @@ export default function ShoppingListPage() {
       <Modal
         isOpen={showCommonFoodsModal}
         onClose={() => setShowCommonFoodsModal(false)}
-        title="Common Foods"
+        title={t('shoppingList.commonFoods')}
       >
         <div className="space-y-4">
           <div>
             <p className="text-sm text-gray-600 mb-4">
-              Add foods you always have on hand. These won't be added to your shopping list when you add recipes.
+              {t('shoppingList.commonFoodsDescription')}
             </p>
             <div className="flex gap-2">
               <Input
                 type="text"
                 value={newCommonFood}
                 onChange={(e) => setNewCommonFood(e.target.value)}
-                placeholder="e.g., salt, pepper, oil"
+                placeholder={t('shoppingList.commonFoodsPlaceholder')}
               />
-              <Button onClick={handleAddCommonFood}>Add</Button>
+              <Button onClick={handleAddCommonFood}>{t('common.add')}</Button>
             </div>
           </div>
 
           {commonFoods.length > 0 && (
             <div className="border-t pt-4">
-              <h3 className="font-semibold text-gray-900 mb-3">Your Common Foods</h3>
+              <h3 className="font-semibold text-gray-900 mb-3">{t('shoppingList.yourCommonFoods')}</h3>
               <div className="flex flex-wrap gap-2">
                 {commonFoods.map((food) => (
                   <div
@@ -445,6 +447,7 @@ export default function ShoppingListPage() {
 }
 
 function ShoppingListItem({ item, onToggle, onRemove }) {
+  const { t } = useTranslation();
   const categoryColors = {
     produce: 'bg-green-100 text-green-800',
     dairy: 'bg-blue-100 text-blue-800',
@@ -452,6 +455,18 @@ function ShoppingListItem({ item, onToggle, onRemove }) {
     frozen: 'bg-cyan-100 text-cyan-800',
     recipe: 'bg-purple-100 text-purple-800',
     other: 'bg-gray-100 text-gray-800',
+  };
+
+  const getCategoryLabel = (category) => {
+    const categoryMap = {
+      produce: t('shoppingList.categories.produce'),
+      dairy: t('shoppingList.categories.dairy'),
+      pantry: t('shoppingList.categories.pantry'),
+      frozen: t('shoppingList.categories.frozen'),
+      recipe: t('shoppingList.categories.recipe'),
+      other: t('shoppingList.categories.other'),
+    };
+    return categoryMap[category] || category;
   };
 
   return (
@@ -481,7 +496,7 @@ function ShoppingListItem({ item, onToggle, onRemove }) {
           categoryColors[item.category] || categoryColors.other
         }`}
       >
-        {item.category}
+        {getCategoryLabel(item.category)}
       </span>
       <button
         onClick={() => onRemove(item.id)}

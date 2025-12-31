@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from '../../hooks/useTranslation.js';
 
 export default function ServingsScaler({ currentServings, onServingsChange, originalServings }) {
+  const { t } = useTranslation();
   const handleDecrease = () => {
     if (currentServings > 1) {
       onServingsChange(currentServings - 1);
@@ -16,7 +18,7 @@ export default function ServingsScaler({ currentServings, onServingsChange, orig
   return (
     <div className="flex items-center gap-3">
       <div>
-        <div className="text-xs text-gray-500">Servings</div>
+        <div className="text-xs text-gray-500">{t('recipe.servings')}</div>
         <div className="flex items-center gap-2 mt-1">
           <button
             onClick={handleDecrease}
@@ -53,7 +55,7 @@ export default function ServingsScaler({ currentServings, onServingsChange, orig
           onClick={() => onServingsChange(originalServings)}
           className="text-xs text-green-600 hover:text-green-700 underline"
         >
-          Reset to {originalServings}
+          {t('servingsScaler.resetTo', { servings: originalServings })}
         </button>
       )}
     </div>

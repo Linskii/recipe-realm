@@ -8,6 +8,7 @@ import {
 } from '../utils/validators.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useTranslation } from '../hooks/useTranslation.js';
 import Input from '../components/ui/Input.jsx';
 import Button from '../components/ui/Button.jsx';
 
@@ -15,6 +16,7 @@ export default function Signup() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { user } = useAuth();
+  const { t, translateError } = useTranslation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -48,14 +50,14 @@ export default function Signup() {
     if (passwordError) newErrors.password = passwordError;
 
     if (formData.password !== formData.confirmPassword) {
-      newErrors.confirmPassword = 'Passwords do not match';
+      newErrors.confirmPassword = { key: 'validation.passwordsNoMatch' };
     }
 
     const usernameError = validateUsername(formData.username);
     if (usernameError) newErrors.username = usernameError;
 
     if (!formData.displayName || formData.displayName.trim().length < 2) {
-      newErrors.displayName = 'Display name must be at least 2 characters';
+      newErrors.displayName = { key: 'validation.displayNameMinLength' };
     }
 
     setErrors(newErrors);
@@ -70,7 +72,7 @@ export default function Signup() {
     try {
       setLoading(true);
       await signUp(formData.email, formData.password, formData.username, formData.displayName);
-      showToast('Account created successfully!', 'success');
+      showToast(t('success.accountCreated'), 'success');
       // Navigation will happen automatically via useEffect when auth state updates
     } catch (error) {
       console.error('Signup failed:', error);
@@ -85,7 +87,7 @@ export default function Signup() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Sign Up</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">{t('auth.signup')}</h1>
 
         {errors.general && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
@@ -98,10 +100,10 @@ export default function Signup() {
             id="email"
             name="email"
             type="email"
-            label="Email"
+            label={t('auth.email')}
             value={formData.email}
             onChange={handleChange}
-            error={errors.email}
+            error={translateError(errors.email)}
             required
             autoComplete="email"
           />
@@ -110,35 +112,35 @@ export default function Signup() {
             id="username"
             name="username"
             type="text"
-            label="Username"
+            label={t('auth.username')}
             value={formData.username}
             onChange={handleChange}
-            error={errors.username}
+            error={translateError(errors.username)}
             required
             autoComplete="username"
-            placeholder="lowercase, numbers, underscores"
+            placeholder={t('auth.usernamePlaceholder')}
           />
 
           <Input
             id="displayName"
             name="displayName"
             type="text"
-            label="Display Name"
+            label={t('auth.displayName')}
             value={formData.displayName}
             onChange={handleChange}
-            error={errors.displayName}
+            error={translateError(errors.displayName)}
             required
-            placeholder="How your name will appear"
+            placeholder={t('auth.displayNamePlaceholder')}
           />
 
           <Input
             id="password"
             name="password"
             type="password"
-            label="Password"
+            label={t('auth.password')}
             value={formData.password}
             onChange={handleChange}
-            error={errors.password}
+            error={translateError(errors.password)}
             required
             autoComplete="new-password"
           />
@@ -147,23 +149,23 @@ export default function Signup() {
             id="confirmPassword"
             name="confirmPassword"
             type="password"
-            label="Confirm Password"
+            label={t('auth.confirmPassword')}
             value={formData.confirmPassword}
             onChange={handleChange}
-            error={errors.confirmPassword}
+            error={translateError(errors.confirmPassword)}
             required
             autoComplete="new-password"
           />
 
           <Button type="submit" loading={loading} className="w-full" size="lg">
-            Sign Up
+            {t('auth.signup')}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-gray-600">
-          Already have an account?{' '}
+          {t('auth.alreadyHaveAccount')}{' '}
           <Link to="/login" className="text-green-600 hover:text-green-700 font-medium">
-            Login
+            {t('auth.login')}
           </Link>
         </p>
       </div>

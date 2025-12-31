@@ -14,6 +14,8 @@ import Browse from './pages/Browse.jsx';
 import ShoppingListPage from './pages/ShoppingListPage.jsx';
 import Profile from './pages/Profile.jsx';
 import LeftoverScanner from './pages/LeftoverScanner.jsx';
+import Settings from './pages/Settings.jsx';
+import './i18n/config.js';
 
 function App() {
   return (
@@ -65,6 +67,14 @@ function App() {
               element={
                 <ProtectedRoute>
                   <RecipeEdit />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/settings"
+              element={
+                <ProtectedRoute>
+                  <Settings />
                 </ProtectedRoute>
               }
             />

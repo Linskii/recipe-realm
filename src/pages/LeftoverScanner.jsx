@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { useTranslation } from '../hooks/useTranslation.js';
 import { getPublicRecipes, getMyRecipes } from '../services/recipeService.js';
 import { calculateRecipeMatch } from '../utils/fuzzyMatch.js';
 import RecipeCard from '../components/recipes/RecipeCard.jsx';
@@ -12,6 +13,7 @@ import Input from '../components/ui/Input.jsx';
 export default function LeftoverScanner() {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const [availableIngredients, setAvailableIngredients] = useState([]);
   const [newIngredient, setNewIngredient] = useState('');
   const [recipes, setRecipes] = useState([]);
@@ -44,7 +46,7 @@ export default function LeftoverScanner() {
       setRecipes(allRecipes);
     } catch (error) {
       console.error('Error loading recipes:', error);
-      showToast('Failed to load recipes', 'error');
+      showToast(t('error.failedToLoadRecipes'), 'error');
     } finally {
       setLoading(false);
     }
@@ -54,12 +56,12 @@ export default function LeftoverScanner() {
     e.preventDefault();
 
     if (!newIngredient.trim()) {
-      showToast('Please enter an ingredient', 'error');
+      showToast(t('validation.ingredientRequired'), 'error');
       return;
     }
 
     if (availableIngredients.includes(newIngredient.trim().toLowerCase())) {
-      showToast('Ingredient already added', 'info');
+      showToast(t('leftoverScanner.ingredientExists'), 'info');
       return;
     }
 
@@ -73,7 +75,7 @@ export default function LeftoverScanner() {
 
   const handleScanRecipes = () => {
     if (availableIngredients.length === 0) {
-      showToast('Please add at least one ingredient', 'error');
+      showToast(t('leftoverScanner.addIngredientsPrompt'), 'error');
       return;
     }
 
@@ -96,13 +98,13 @@ export default function LeftoverScanner() {
       setMatchedRecipes(matches);
 
       if (matches.length === 0) {
-        showToast('No recipes found with 80% or more matching ingredients', 'info');
+        showToast(t('leftoverScanner.noMatches'), 'info');
       } else {
-        showToast(`Found ${matches.length} matching recipe(s)`, 'success');
+        showToast(t('success.recipesFound', { count: matches.length }), 'success');
       }
     } catch (error) {
       console.error('Error scanning recipes:', error);
-      showToast('Failed to scan recipes', 'error');
+      showToast(t('error.failedToScan'), 'error');
     } finally {
       setScanning(false);
     }
@@ -123,10 +125,10 @@ export default function LeftoverScanner() {
             </Link>
             <div className="flex items-center gap-4">
               <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">
-                Dashboard
+                {t('nav.dashboard')}
               </Link>
               <Link to="/browse" className="text-gray-600 hover:text-gray-900">
-                Browse
+                {t('nav.browse')}
               </Link>
             </div>
           </div>
@@ -135,16 +137,16 @@ export default function LeftoverScanner() {
 
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Leftover Scanner</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('leftoverScanner.title')}</h1>
           <p className="text-gray-600">
-            Enter the ingredients you have available, and we'll find recipes that match 80% or more!
+            {t('leftoverScanner.description')}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-sm p-6 sticky top-4">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Your Ingredients</h2>
+              <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('leftoverScanner.yourIngredients')}</h2>
 
               <form onSubmit={handleAddIngredient} className="mb-4">
                 <div className="flex gap-2">
@@ -152,9 +154,9 @@ export default function LeftoverScanner() {
                     type="text"
                     value={newIngredient}
                     onChange={(e) => setNewIngredient(e.target.value)}
-                    placeholder="e.g., chicken, tomatoes"
+                    placeholder={t('leftoverScanner.placeholder')}
                   />
-                  <Button type="submit">Add</Button>
+                  <Button type="submit">{t('common.add')}</Button>
                 </div>
               </form>
 
@@ -185,7 +187,7 @@ export default function LeftoverScanner() {
                     ))}
                   </div>
                   <p className="text-sm text-gray-500 mt-2">
-                    {availableIngredients.length} ingredient(s) added
+                    {t('leftoverScanner.ingredientsAdded', { count: availableIngredients.length })}
                   </p>
                 </div>
               )}
@@ -196,11 +198,11 @@ export default function LeftoverScanner() {
                   disabled={availableIngredients.length === 0 || scanning}
                   className="w-full"
                 >
-                  {scanning ? 'Scanning...' : 'Scan for Recipes'}
+                  {scanning ? t('leftoverScanner.scanning') : t('leftoverScanner.scanButton')}
                 </Button>
                 {availableIngredients.length > 0 && (
                   <Button variant="secondary" onClick={handleClearAll} className="w-full">
-                    Clear All
+                    {t('leftoverScanner.clearAll')}
                   </Button>
                 )}
               </div>
@@ -217,23 +219,23 @@ export default function LeftoverScanner() {
                 <div className="text-6xl mb-4">🔍</div>
                 <h3 className="text-xl font-semibold text-gray-900 mb-2">
                   {availableIngredients.length === 0
-                    ? 'Add ingredients to start'
-                    : 'No matching recipes found'}
+                    ? t('leftoverScanner.addIngredientsPrompt')
+                    : t('leftoverScanner.noMatches')}
                 </h3>
                 <p className="text-gray-600">
                   {availableIngredients.length === 0
-                    ? 'Enter the ingredients you have available to find matching recipes.'
-                    : 'Try adding more ingredients or adjusting your list.'}
+                    ? t('leftoverScanner.description')
+                    : t('leftoverScanner.noMatchesDescription')}
                 </p>
               </div>
             ) : (
               <div>
                 <div className="mb-4">
                   <h2 className="text-xl font-semibold text-gray-900">
-                    Matching Recipes ({matchedRecipes.length})
+                    {t('leftoverScanner.matchingRecipes')} ({matchedRecipes.length})
                   </h2>
                   <p className="text-sm text-gray-600">
-                    Recipes with 80% or more matching ingredients
+                    {t('leftoverScanner.recipesWith80Percent')}
                   </p>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -241,10 +243,10 @@ export default function LeftoverScanner() {
                     <div key={recipe.id} className="relative">
                       <RecipeCard recipe={recipe} />
                       <div className="absolute top-2 right-2 bg-green-600 text-white px-3 py-1 rounded-full text-sm font-semibold shadow-lg">
-                        {recipe.matchPercentage.toFixed(0)}% match
+                        {recipe.matchPercentage.toFixed(0)}% {t('common.match')}
                       </div>
                       <div className="mt-2 text-sm text-gray-600 text-center">
-                        {recipe.matchedCount} of {recipe.totalCount} ingredients
+                        {t('leftoverScanner.ingredientMatch', { matched: recipe.matchedCount, total: recipe.totalCount })}
                       </div>
                     </div>
                   ))}

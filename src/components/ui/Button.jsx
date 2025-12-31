@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from '../../hooks/useTranslation.js';
 import LoadingSpinner from './LoadingSpinner';
 
 export default function Button({
@@ -12,6 +13,7 @@ export default function Button({
   className = '',
   ...props
 }) {
+  const { t } = useTranslation();
   const baseClasses = 'font-medium rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
 
   const variantClasses = {
@@ -40,7 +42,7 @@ export default function Button({
       {loading ? (
         <div className="flex items-center justify-center gap-2">
           <LoadingSpinner size="sm" />
-          <span>Loading...</span>
+          <span>{t('common.loading')}</span>
         </div>
       ) : (
         children

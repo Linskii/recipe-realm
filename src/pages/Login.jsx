@@ -4,6 +4,7 @@ import { login, getErrorMessage } from '../services/authService.js';
 import { validateEmail, validatePassword } from '../utils/validators.js';
 import { useToast } from '../context/ToastContext.jsx';
 import { useAuth } from '../context/AuthContext.jsx';
+import { useTranslation } from '../hooks/useTranslation.js';
 import Input from '../components/ui/Input.jsx';
 import Button from '../components/ui/Button.jsx';
 
@@ -11,6 +12,7 @@ export default function Login() {
   const navigate = useNavigate();
   const { showToast } = useToast();
   const { user } = useAuth();
+  const { t, translateError } = useTranslation();
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -52,11 +54,12 @@ export default function Login() {
     try {
       setLoading(true);
       await login(formData.email, formData.password);
-      showToast('Welcome back!', 'success');
+      showToast(t('success.welcomeBack'), 'success');
       // Navigation will happen automatically via useEffect when auth state updates
     } catch (error) {
       console.error('Login failed:', error);
-      const message = getErrorMessage(error);
+      const messageKey = getErrorMessage(error);
+      const message = t(messageKey);
       setErrors({ general: message });
       showToast(message, 'error');
     } finally {
@@ -67,7 +70,7 @@ export default function Login() {
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
       <div className="max-w-md w-full bg-white rounded-lg shadow-sm p-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">Login</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-6 text-center">{t('auth.login')}</h1>
 
         {errors.general && (
           <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm">
@@ -80,10 +83,10 @@ export default function Login() {
             id="email"
             name="email"
             type="email"
-            label="Email"
+            label={t('auth.email')}
             value={formData.email}
             onChange={handleChange}
-            error={errors.email}
+            error={translateError(errors.email)}
             required
             autoComplete="email"
           />
@@ -92,23 +95,23 @@ export default function Login() {
             id="password"
             name="password"
             type="password"
-            label="Password"
+            label={t('auth.password')}
             value={formData.password}
             onChange={handleChange}
-            error={errors.password}
+            error={translateError(errors.password)}
             required
             autoComplete="current-password"
           />
 
           <Button type="submit" loading={loading} className="w-full" size="lg">
-            Login
+            {t('auth.login')}
           </Button>
         </form>
 
         <p className="mt-6 text-center text-gray-600">
-          Don't have an account?{' '}
+          {t('auth.dontHaveAccount')}{' '}
           <Link to="/signup" className="text-green-600 hover:text-green-700 font-medium">
-            Sign up
+            {t('auth.signup')}
           </Link>
         </p>
       </div>

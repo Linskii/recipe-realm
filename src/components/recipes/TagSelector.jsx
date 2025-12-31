@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { PREDEFINED_TAGS, TAG_VALIDATION, validateTag, normalizeTag } from '../../constants/tags.js';
+import { useTranslation } from '../../hooks/useTranslation.js';
 import Button from '../ui/Button.jsx';
 
 export default function TagSelector({ selectedTags = [], onChange, maxTags = TAG_VALIDATION.MAX_TAGS_PER_RECIPE }) {
+  const { t } = useTranslation();
   const [customTag, setCustomTag] = useState('');
   const [error, setError] = useState('');
 
@@ -11,7 +13,7 @@ export default function TagSelector({ selectedTags = [], onChange, maxTags = TAG
       onChange(selectedTags.filter((t) => t !== tag));
     } else {
       if (selectedTags.length >= maxTags) {
-        setError(`Maximum ${maxTags} tags allowed`);
+        setError(t('tagSelector.maxTagsReached', { count: maxTags }));
         return;
       }
       onChange([...selectedTags, tag]);
@@ -29,12 +31,12 @@ export default function TagSelector({ selectedTags = [], onChange, maxTags = TAG
     }
 
     if (selectedTags.includes(normalized)) {
-      setError('Tag already added');
+      setError(t('tagSelector.tagAlreadyAdded'));
       return;
     }
 
     if (selectedTags.length >= maxTags) {
-      setError(`Maximum ${maxTags} tags allowed`);
+      setError(t('tagSelector.maxTagsReached', { count: maxTags }));
       return;
     }
 
@@ -59,7 +61,7 @@ export default function TagSelector({ selectedTags = [], onChange, maxTags = TAG
     <div className="space-y-4">
       <div>
         <h3 className="text-sm font-medium text-gray-900 mb-2">
-          Selected Tags ({selectedTags.length}/{maxTags})
+          {t('tagSelector.selectedTags', { count: selectedTags.length, total: maxTags })}
         </h3>
         {selectedTags.length > 0 ? (
           <div className="flex flex-wrap gap-2">
@@ -80,12 +82,12 @@ export default function TagSelector({ selectedTags = [], onChange, maxTags = TAG
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-500">No tags selected</p>
+          <p className="text-sm text-gray-500">{t('tagSelector.noTagsSelected')}</p>
         )}
       </div>
 
       <div>
-        <h3 className="text-sm font-medium text-gray-900 mb-2">Add Tags</h3>
+        <h3 className="text-sm font-medium text-gray-900 mb-2">{t('tagSelector.addTags')}</h3>
         <div className="flex flex-wrap gap-2 mb-3">
           {PREDEFINED_TAGS.sort().map((tag) => (
             <button
@@ -106,7 +108,7 @@ export default function TagSelector({ selectedTags = [], onChange, maxTags = TAG
       </div>
 
       <div>
-        <h3 className="text-sm font-medium text-gray-900 mb-2">Or create custom tag</h3>
+        <h3 className="text-sm font-medium text-gray-900 mb-2">{t('tagSelector.createCustomTag')}</h3>
         <div className="flex gap-2">
           <input
             type="text"
@@ -116,7 +118,7 @@ export default function TagSelector({ selectedTags = [], onChange, maxTags = TAG
               setError('');
             }}
             onKeyPress={handleKeyPress}
-            placeholder="custom-tag-name"
+            placeholder={t('tagSelector.customTagPlaceholder')}
             className="flex-1 h-10 px-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             disabled={selectedTags.length >= maxTags}
           />
@@ -126,12 +128,12 @@ export default function TagSelector({ selectedTags = [], onChange, maxTags = TAG
             disabled={!customTag.trim() || selectedTags.length >= maxTags}
             size="md"
           >
-            Add
+            {t('common.add')}
           </Button>
         </div>
         {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
         <p className="text-xs text-gray-500 mt-1">
-          Custom tags: lowercase letters, numbers, and hyphens only (2-20 characters)
+          {t('tagSelector.customTagHelper')}
         </p>
       </div>
     </div>

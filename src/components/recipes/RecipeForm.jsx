@@ -3,6 +3,7 @@ import Input from '../ui/Input.jsx';
 import Button from '../ui/Button.jsx';
 import TagSelector from './TagSelector.jsx';
 import { DIFFICULTY_LEVELS } from '../../constants/validation.js';
+import { useTranslation } from '../../hooks/useTranslation.js';
 import {
   validateRecipeTitle,
   validateRecipeDescription,
@@ -11,6 +12,7 @@ import {
 } from '../../utils/validators.js';
 
 export default function RecipeForm({ initialData = {}, onSubmit, loading = false }) {
+  const { t } = useTranslation();
   const [formData, setFormData] = useState({
     title: initialData.title || '',
     description: initialData.description || '',
@@ -109,11 +111,11 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
     if (cookTimeError) newErrors.cookTime = cookTimeError;
 
     if (formData.ingredients.length === 0) {
-      newErrors.ingredients = 'Please add at least one ingredient';
+      newErrors.ingredients = t('validation.ingredientsRequired');
     }
 
     if (formData.instructions.length === 0) {
-      newErrors.instructions = 'Please add at least one instruction';
+      newErrors.instructions = t('validation.instructionsRequired');
     }
 
     setErrors(newErrors);
@@ -133,17 +135,17 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
       <Input
         id="title"
         name="title"
-        label="Recipe Title"
+        label={t('recipe.title')}
         value={formData.title}
         onChange={handleChange}
         error={errors.title}
         required
-        placeholder="Enter recipe title"
+        placeholder={t('recipe.titlePlaceholder')}
       />
 
       <div>
         <label htmlFor="description" className="block text-sm font-medium text-gray-900 mb-1">
-          Description
+          {t('recipe.description')}
         </label>
         <textarea
           id="description"
@@ -152,7 +154,7 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
           onChange={handleChange}
           rows={3}
           className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
-          placeholder="Brief description of the recipe"
+          placeholder={t('recipe.descriptionPlaceholder')}
         />
         {errors.description && <p className="text-sm text-red-500 mt-1">{errors.description}</p>}
       </div>
@@ -162,7 +164,7 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
           id="servings"
           name="servings"
           type="number"
-          label="Servings"
+          label={t('recipe.servings')}
           value={formData.servings}
           onChange={handleChange}
           error={errors.servings}
@@ -172,7 +174,7 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
 
         <div>
           <label htmlFor="difficulty" className="block text-sm font-medium text-gray-900 mb-1">
-            Difficulty <span className="text-red-500">*</span>
+            {t('recipe.difficulty')} <span className="text-red-500">*</span>
           </label>
           <select
             id="difficulty"
@@ -195,7 +197,7 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
           id="prepTime"
           name="prepTime"
           type="number"
-          label="Prep Time (minutes)"
+          label={t('recipe.prepTime')}
           value={formData.prepTime}
           onChange={handleChange}
           error={errors.prepTime}
@@ -207,7 +209,7 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
           id="cookTime"
           name="cookTime"
           type="number"
-          label="Cook Time (minutes)"
+          label={t('recipe.cookTime')}
           value={formData.cookTime}
           onChange={handleChange}
           error={errors.cookTime}
@@ -218,7 +220,7 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
 
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-3">
-          Ingredients <span className="text-red-500">*</span>
+          {t('recipe.ingredients')} <span className="text-red-500">*</span>
         </h3>
         <div className="grid grid-cols-12 gap-2 mb-3">
           <div className="col-span-6">
@@ -227,7 +229,7 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
               name="name"
               value={currentIngredient.name}
               onChange={handleIngredientChange}
-              placeholder="Ingredient name"
+              placeholder={t('recipe.ingredientName')}
               className="w-full h-10 px-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
@@ -237,7 +239,7 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
               name="quantity"
               value={currentIngredient.quantity}
               onChange={handleIngredientChange}
-              placeholder="Qty"
+              placeholder={t('recipe.quantity')}
               step="0.1"
               className="w-full h-10 px-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
@@ -248,13 +250,13 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
               name="unit"
               value={currentIngredient.unit}
               onChange={handleIngredientChange}
-              placeholder="Unit"
+              placeholder={t('recipe.unit')}
               className="w-full h-10 px-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
             />
           </div>
           <div className="col-span-2">
             <Button type="button" onClick={addIngredient} className="w-full">
-              Add
+              {t('common.add')}
             </Button>
           </div>
         </div>
@@ -271,7 +273,7 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
                   onClick={() => removeIngredient(index)}
                   className="text-red-500 hover:text-red-700"
                 >
-                  Remove
+                  {t('common.remove')}
                 </button>
               </li>
             ))}
@@ -282,18 +284,18 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
 
       <div>
         <h3 className="text-lg font-semibold text-gray-900 mb-3">
-          Instructions <span className="text-red-500">*</span>
+          {t('recipe.instructions')} <span className="text-red-500">*</span>
         </h3>
         <div className="flex gap-2 mb-3">
           <input
             type="text"
             value={currentInstruction}
             onChange={(e) => setCurrentInstruction(e.target.value)}
-            placeholder="Add an instruction step"
+            placeholder={t('recipe.instructionPlaceholder')}
             className="flex-1 h-10 px-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500"
           />
           <Button type="button" onClick={addInstruction}>
-            Add Step
+            {t('common.addStep')}
           </Button>
         </div>
 
@@ -307,7 +309,7 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
                   onClick={() => removeInstruction(index)}
                   className="text-red-500 hover:text-red-700 ml-2"
                 >
-                  Remove
+                  {t('common.remove')}
                 </button>
               </li>
             ))}
@@ -317,7 +319,7 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
       </div>
 
       <div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-3">Tags</h3>
+        <h3 className="text-lg font-semibold text-gray-900 mb-3">{t('recipe.tags')}</h3>
         <TagSelector
           selectedTags={formData.tags}
           onChange={(tags) => setFormData((prev) => ({ ...prev, tags }))}
@@ -327,10 +329,10 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
       <Input
         id="source"
         name="source"
-        label="Source (optional)"
+        label={t('recipe.source')}
         value={formData.source}
         onChange={handleChange}
-        placeholder="Where did this recipe come from?"
+        placeholder={t('recipe.sourcePlaceholder')}
       />
 
       <div className="flex items-center gap-2">
@@ -343,13 +345,13 @@ export default function RecipeForm({ initialData = {}, onSubmit, loading = false
           className="w-5 h-5 text-green-600 rounded focus:ring-2 focus:ring-green-500"
         />
         <label htmlFor="isPublic" className="text-sm text-gray-900">
-          Make this recipe public (visible to everyone)
+          {t('recipe.makePublic')}
         </label>
       </div>
 
       <div className="flex gap-3">
         <Button type="submit" loading={loading} className="flex-1" size="lg">
-          {initialData.title ? 'Update Recipe' : 'Create Recipe'}
+          {initialData.title ? t('recipe.updateRecipe') : t('recipe.createRecipe')}
         </Button>
       </div>
     </form>

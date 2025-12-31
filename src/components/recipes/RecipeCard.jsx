@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import { useTranslation } from '../../hooks/useTranslation.js';
 
 export default function RecipeCard({
   recipe,
@@ -8,6 +9,7 @@ export default function RecipeCard({
   onAddToFolder,
   onRemoveFromFolder
 }) {
+  const { t } = useTranslation();
   const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
   const [showFolderMenu, setShowFolderMenu] = useState(false);
   const menuRef = useRef(null);
@@ -97,7 +99,7 @@ export default function RecipeCard({
               )}
             </div>
             {recipe.difficulty && (
-              <span className="text-xs px-2 py-1 rounded-full bg-gray-100">{recipe.difficulty}</span>
+              <span className="text-xs px-2 py-1 rounded-full bg-gray-100">{t(`difficulty.${recipe.difficulty.toLowerCase()}`)}</span>
             )}
           </div>
 
@@ -127,7 +129,7 @@ export default function RecipeCard({
           )}
 
           <div className="mt-2 text-xs text-gray-500">
-            by @{recipe.createdByUsername || 'Unknown'}
+            {t('recipe.by')} @{recipe.createdByUsername || t('common.unknown')}
           </div>
         </div>
       </div>
@@ -153,7 +155,7 @@ export default function RecipeCard({
         {showFolderMenu && (
           <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-10">
             <div className="px-3 py-2 text-xs font-semibold text-gray-500 border-b border-gray-200">
-              Add to Folder
+              {t('recipeCard.addToFolder')}
             </div>
             <div className="max-h-64 overflow-y-auto">
               {folders.map((folder) => {

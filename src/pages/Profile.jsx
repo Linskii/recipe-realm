@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { useTranslation } from '../hooks/useTranslation.js';
 import { useFollow } from '../hooks/useFollow.js';
 import { getUserByUsername, getUserPublicRecipes } from '../services/userService.js';
 import { logout } from '../services/authService.js';
@@ -13,6 +14,7 @@ export default function Profile() {
   const { username } = useParams();
   const { user: currentUser } = useAuth();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   const [profileUser, setProfileUser] = useState(null);
@@ -41,7 +43,7 @@ export default function Profile() {
       setProfileUser(user);
     } catch (error) {
       console.error('Failed to load profile:', error);
-      showToast('User not found', 'error');
+      showToast(t('error.userNotFound'), 'error');
       navigate('/browse');
     } finally {
       setLoading(false);
@@ -55,7 +57,7 @@ export default function Profile() {
       setRecipes(data);
     } catch (error) {
       console.error('Failed to load recipes:', error);
-      showToast('Failed to load recipes', 'error');
+      showToast(t('error.failedToLoadRecipes'), 'error');
     } finally {
       setRecipesLoading(false);
     }
@@ -63,30 +65,30 @@ export default function Profile() {
 
   const handleFollowToggle = async () => {
     if (!currentUser) {
-      showToast('Please log in to follow users', 'info');
+      showToast(t('profile.loginToFollow'), 'info');
       navigate('/login');
       return;
     }
 
     try {
       await toggleFollow();
-      showToast(following ? 'Unfollowed successfully' : 'Followed successfully', 'success');
+      showToast(following ? t('success.unfollowed') : t('success.followed'), 'success');
       // Reload profile to update counts
       await loadProfile();
     } catch (error) {
       console.error('Failed to toggle follow:', error);
-      showToast(error.message || 'Failed to update follow status', 'error');
+      showToast(error.message || t('error.failedToUpdateFollowStatus'), 'error');
     }
   };
 
   const handleLogout = async () => {
     try {
       await logout();
-      showToast('Logged out successfully', 'success');
+      showToast(t('success.loggedOut'), 'success');
       navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
-      showToast('Failed to log out', 'error');
+      showToast(t('error.logoutFailed'), 'error');
     }
   };
 
@@ -114,34 +116,34 @@ export default function Profile() {
               {currentUser ? (
                 <>
                   <Link to="/dashboard" className="text-gray-600 hover:text-gray-900">
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Link>
                   <Link to="/my-recipes" className="text-gray-600 hover:text-gray-900">
-                    My Recipes
+                    {t('nav.myRecipes')}
                   </Link>
                   <Link to="/browse" className="text-gray-600 hover:text-gray-900">
-                    Browse
+                    {t('nav.browse')}
                   </Link>
                   <Link to="/shopping-list" className="text-gray-600 hover:text-gray-900">
-                    Shopping List
+                    {t('nav.shoppingList')}
                   </Link>
                   <span className="text-gray-700">@{currentUser.username}</span>
                   <Button onClick={handleLogout} variant="secondary" size="sm">
-                    Logout
+                    {t('nav.logout')}
                   </Button>
                 </>
               ) : (
                 <>
                   <Link to="/browse" className="text-gray-600 hover:text-gray-900">
-                    Browse
+                    {t('nav.browse')}
                   </Link>
                   <Link to="/login">
                     <Button variant="secondary" size="sm">
-                      Login
+                      {t('nav.login')}
                     </Button>
                   </Link>
                   <Link to="/signup">
-                    <Button size="sm">Sign Up</Button>
+                    <Button size="sm">{t('nav.signup')}</Button>
                   </Link>
                 </>
               )}
@@ -168,22 +170,22 @@ export default function Profile() {
                 <div className="flex items-center gap-6 text-sm">
                   <div>
                     <span className="font-semibold">{profileUser.recipeCount || 0}</span>{' '}
-                    <span className="text-gray-600">Recipes</span>
+                    <span className="text-gray-600">{t('profile.recipes')}</span>
                   </div>
                   <div>
                     <span className="font-semibold">{profileUser.followerCount || 0}</span>{' '}
-                    <span className="text-gray-600">Followers</span>
+                    <span className="text-gray-600">{t('profile.followers')}</span>
                   </div>
                   <div>
                     <span className="font-semibold">{profileUser.followingCount || 0}</span>{' '}
-                    <span className="text-gray-600">Following</span>
+                    <span className="text-gray-600">{t('profile.following')}</span>
                   </div>
                 </div>
               </div>
             </div>
             {!isOwnProfile && currentUser && (
               <Button onClick={handleFollowToggle} variant={following ? 'secondary' : 'primary'}>
-                {following ? 'Unfollow' : 'Follow'}
+                {following ? t('profile.unfollow') : t('profile.follow')}
               </Button>
             )}
           </div>
@@ -191,7 +193,7 @@ export default function Profile() {
 
         <div className="mb-4">
           <h2 className="text-2xl font-bold text-gray-900">
-            Public Recipes ({recipes.length})
+            {t('profile.publicRecipes')} ({recipes.length})
           </h2>
         </div>
 
@@ -202,11 +204,11 @@ export default function Profile() {
         ) : recipes.length === 0 ? (
           <div className="bg-white rounded-lg shadow-sm p-12 text-center">
             <div className="text-6xl mb-4">📖</div>
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No public recipes yet</h3>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">{t('profile.noRecipesYet')}</h3>
             <p className="text-gray-600">
               {isOwnProfile
-                ? 'Create and share your first recipe to get started!'
-                : `${profileUser.displayName || profileUser.username} hasn't shared any recipes yet.`}
+                ? t('profile.createFirstRecipe')
+                : t('profile.noRecipesFrom', { name: profileUser.displayName || profileUser.username })}
             </p>
           </div>
         ) : (

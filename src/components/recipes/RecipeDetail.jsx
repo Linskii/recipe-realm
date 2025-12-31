@@ -7,11 +7,13 @@ import { copyRecipe } from '../../services/recipeService.js';
 import { addRecipeIngredientsToList, getCommonFoods } from '../../services/shoppingService.js';
 import { useAuth } from '../../context/AuthContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useTranslation } from '../../hooks/useTranslation.js';
 import Button from '../ui/Button.jsx';
 
 export default function RecipeDetail({ recipe, onRecipeUpdate }) {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const totalTime = (recipe.prepTime || 0) + (recipe.cookTime || 0);
   const [currentServings, setCurrentServings] = useState(recipe.servings || 1);
   const [userRating, setUserRating] = useState(null);
@@ -40,12 +42,12 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
 
   const handleRate = async (newRating) => {
     if (!user) {
-      showToast('Please log in to rate recipes', 'error');
+      showToast(t('recipeDetail.loginToRate'), 'error');
       return;
     }
 
     if (user.uid === recipe.createdBy) {
-      showToast('You cannot rate your own recipe', 'error');
+      showToast(t('recipeDetail.cannotRateOwnRecipe'), 'error');
       return;
     }
 
@@ -53,14 +55,14 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
     try {
       await updateRecipeRating(recipe.id, user.uid, newRating, userRating);
       setUserRating(newRating);
-      showToast('Rating submitted successfully', 'success');
+      showToast(t('recipeDetail.ratingSubmitted'), 'success');
 
       if (onRecipeUpdate) {
         onRecipeUpdate();
       }
     } catch (error) {
       console.error('Error rating recipe:', error);
-      showToast(error.message || 'Failed to submit rating', 'error');
+      showToast(error.message || t('recipeDetail.ratingFailed'), 'error');
     } finally {
       setIsRatingLoading(false);
     }
@@ -68,22 +70,22 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
 
   const handleCopyRecipe = async () => {
     if (!user) {
-      showToast('Please log in to save recipes', 'error');
+      showToast(t('recipeDetail.loginToSave'), 'error');
       return;
     }
 
     if (user.uid === recipe.createdBy) {
-      showToast('This is already your recipe', 'info');
+      showToast(t('recipeDetail.alreadyYourRecipe'), 'info');
       return;
     }
 
     setIsCopying(true);
     try {
       await copyRecipe(recipe.id, user.uid, user.username);
-      showToast('Recipe saved to your recipes', 'success');
+      showToast(t('recipeDetail.recipeSaved'), 'success');
     } catch (error) {
       console.error('Error copying recipe:', error);
-      showToast(error.message || 'Failed to save recipe', 'error');
+      showToast(error.message || t('recipeDetail.saveFailed'), 'error');
     } finally {
       setIsCopying(false);
     }
@@ -94,21 +96,21 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
 
     try {
       await navigator.clipboard.writeText(shareUrl);
-      showToast('Recipe link copied to clipboard!', 'success');
+      showToast(t('recipeDetail.linkCopied'), 'success');
     } catch (error) {
       console.error('Error copying to clipboard:', error);
-      showToast('Failed to copy link', 'error');
+      showToast(t('recipeDetail.copyFailed'), 'error');
     }
   };
 
   const handleAddToShoppingList = async () => {
     if (!user) {
-      showToast('Please log in to use shopping list', 'error');
+      showToast(t('recipeDetail.loginToUseList'), 'error');
       return;
     }
 
     if (!recipe.ingredients || recipe.ingredients.length === 0) {
-      showToast('This recipe has no ingredients to add', 'info');
+      showToast(t('recipeDetail.noIngredients'), 'info');
       return;
     }
 
@@ -124,10 +126,10 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
       // Add ingredients to shopping list
       await addRecipeIngredientsToList(user.uid, ingredientNames, currentServings, commonFoodNames);
 
-      showToast('Ingredients added to shopping list!', 'success');
+      showToast(t('recipeDetail.ingredientsAdded'), 'success');
     } catch (error) {
       console.error('Error adding to shopping list:', error);
-      showToast(error.message || 'Failed to add to shopping list', 'error');
+      showToast(error.message || t('recipeDetail.addToListFailed'), 'error');
     } finally {
       setIsAddingToList(false);
     }
@@ -145,16 +147,16 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
             <h1 className="text-3xl md:text-4xl font-bold text-gray-900">{recipe.title}</h1>
             <div className="flex flex-wrap gap-2 justify-end">
               <Button onClick={handleShareRecipe} variant="secondary" size="sm">
-                Share
+                {t('recipeDetail.share')}
               </Button>
               {user && (
                 <Button onClick={handleAddToShoppingList} disabled={isAddingToList} variant="secondary" size="sm">
-                  {isAddingToList ? 'Adding...' : 'Add to Shopping List'}
+                  {isAddingToList ? t('recipeDetail.adding') : t('recipe.addToShoppingList')}
                 </Button>
               )}
               {user && user.uid !== recipe.createdBy && (
                 <Button onClick={handleCopyRecipe} disabled={isCopying} size="sm">
-                  {isCopying ? 'Saving...' : 'Save to My Recipes'}
+                  {isCopying ? t('recipeDetail.saving') : t('recipeDetail.saveToMyRecipes')}
                 </Button>
               )}
             </div>
@@ -163,10 +165,10 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
         </div>
 
         <div className="mb-6 text-sm text-gray-500">
-          <span>by @{recipe.createdByUsername || 'Unknown'}</span>
+          <span>{t('recipe.by')} @{recipe.createdByUsername || t('common.unknown')}</span>
           {recipe.copiedFrom && recipe.originalCreator && (
             <span className="ml-2 text-gray-400">
-              (adapted from @{recipe.originalCreator})
+              ({t('recipeDetail.adaptedFrom')} @{recipe.originalCreator})
             </span>
           )}
         </div>
@@ -183,8 +185,8 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
                 />
               </svg>
               <div>
-                <div className="text-xs text-gray-500">Total Time</div>
-                <div className="font-semibold text-gray-900">{totalTime} min</div>
+                <div className="text-xs text-gray-500">{t('recipe.totalTime')}</div>
+                <div className="font-semibold text-gray-900">{totalTime} {t('recipeDetail.min')}</div>
               </div>
             </div>
           )}
@@ -192,8 +194,8 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
           {recipe.prepTime > 0 && (
             <div className="flex items-center gap-2">
               <div>
-                <div className="text-xs text-gray-500">Prep Time</div>
-                <div className="font-semibold text-gray-900">{recipe.prepTime} min</div>
+                <div className="text-xs text-gray-500">{t('recipeDetail.prepTime')}</div>
+                <div className="font-semibold text-gray-900">{recipe.prepTime} {t('recipeDetail.min')}</div>
               </div>
             </div>
           )}
@@ -201,8 +203,8 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
           {recipe.cookTime > 0 && (
             <div className="flex items-center gap-2">
               <div>
-                <div className="text-xs text-gray-500">Cook Time</div>
-                <div className="font-semibold text-gray-900">{recipe.cookTime} min</div>
+                <div className="text-xs text-gray-500">{t('recipeDetail.cookTime')}</div>
+                <div className="font-semibold text-gray-900">{recipe.cookTime} {t('recipeDetail.min')}</div>
               </div>
             </div>
           )}
@@ -218,8 +220,8 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
           {recipe.difficulty && (
             <div className="flex items-center gap-2">
               <div>
-                <div className="text-xs text-gray-500">Difficulty</div>
-                <div className="font-semibold text-gray-900">{recipe.difficulty}</div>
+                <div className="text-xs text-gray-500">{t('recipe.difficulty')}</div>
+                <div className="font-semibold text-gray-900">{t(`difficulty.${recipe.difficulty.toLowerCase()}`)}</div>
               </div>
             </div>
           )}
@@ -229,7 +231,7 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
           <div className="space-y-4">
             {recipe.averageRating > 0 && (
               <div>
-                <div className="text-sm font-semibold text-gray-900 mb-2">Average Rating</div>
+                <div className="text-sm font-semibold text-gray-900 mb-2">{t('recipeDetail.averageRating')}</div>
                 <div className="flex items-center gap-3">
                   <StarRating
                     rating={recipe.averageRating}
@@ -248,7 +250,7 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
             {user && user.uid !== recipe.createdBy && (
               <div>
                 <div className="text-sm font-semibold text-gray-900 mb-2">
-                  {userRating ? 'Your Rating' : 'Rate this Recipe'}
+                  {userRating ? t('recipeDetail.yourRating') : t('recipeDetail.rateThisRecipe')}
                 </div>
                 <StarRating
                   rating={userRating || 0}
@@ -263,7 +265,7 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
 
         {recipe.tags && recipe.tags.length > 0 && (
           <div className="mb-6 pb-6 border-b border-gray-200">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Tags</h2>
+            <h2 className="text-sm font-semibold text-gray-900 mb-3">{t('recipe.tags')}</h2>
             <div className="flex flex-wrap gap-2">
               {recipe.tags.map((tag, index) => (
                 <span
@@ -279,7 +281,7 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
 
         {scaledIngredients.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Ingredients</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('recipe.ingredients')}</h2>
             <ul className="space-y-2">
               {scaledIngredients.map((ingredient, index) => (
                 <li key={index} className="flex items-start gap-3 text-gray-700">
@@ -295,7 +297,7 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
 
         {recipe.instructions && recipe.instructions.length > 0 && (
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-gray-900 mb-4">Instructions</h2>
+            <h2 className="text-2xl font-bold text-gray-900 mb-4">{t('recipe.instructions')}</h2>
             <ol className="space-y-4">
               {recipe.instructions.map((instruction, index) => (
                 <li key={index} className="flex gap-4">
@@ -311,7 +313,7 @@ export default function RecipeDetail({ recipe, onRecipeUpdate }) {
 
         {recipe.source && (
           <div className="mb-6 pb-6 border-t border-gray-200 pt-6">
-            <h3 className="text-sm font-semibold text-gray-900 mb-1">Source</h3>
+            <h3 className="text-sm font-semibold text-gray-900 mb-1">{t('recipe.source')}</h3>
             <p className="text-gray-600">{recipe.source}</p>
           </div>
         )}

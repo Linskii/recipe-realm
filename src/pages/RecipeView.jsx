@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { useTranslation } from '../hooks/useTranslation.js';
 import { getRecipe, deleteRecipe } from '../services/recipeService.js';
 import RecipeDetail from '../components/recipes/RecipeDetail.jsx';
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
@@ -13,6 +14,7 @@ export default function RecipeView() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -42,11 +44,11 @@ export default function RecipeView() {
     try {
       setDeleting(true);
       await deleteRecipe(id, user.uid);
-      showToast('Recipe deleted successfully', 'success');
+      showToast(t('recipeView.deleteSuccess'), 'success');
       navigate('/my-recipes');
     } catch (err) {
       console.error('Error deleting recipe:', err);
-      showToast('Failed to delete recipe', 'error');
+      showToast(t('recipeView.deleteFailed'), 'error');
     } finally {
       setDeleting(false);
       setDeleteModalOpen(false);
@@ -62,13 +64,13 @@ export default function RecipeView() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <Link to="/" className="text-2xl font-bold text-green-600">
-                Recipe Realm
+                {t('app.name')}
               </Link>
               <div className="flex items-center gap-4">
                 {user && (
                   <Link to="/dashboard">
                     <Button variant="secondary" size="sm">
-                      Dashboard
+                      {t('nav.dashboard')}
                     </Button>
                   </Link>
                 )}
@@ -91,13 +93,13 @@ export default function RecipeView() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <Link to="/" className="text-2xl font-bold text-green-600">
-                Recipe Realm
+                {t('app.name')}
               </Link>
               <div className="flex items-center gap-4">
                 {user && (
                   <Link to="/dashboard">
                     <Button variant="secondary" size="sm">
-                      Dashboard
+                      {t('nav.dashboard')}
                     </Button>
                   </Link>
                 )}
@@ -107,10 +109,10 @@ export default function RecipeView() {
         </nav>
 
         <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Recipe Not Found</h1>
-          <p className="text-gray-600 mb-6">{error || 'The recipe you are looking for does not exist.'}</p>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('recipeView.notFound')}</h1>
+          <p className="text-gray-600 mb-6">{error || t('recipeView.notFoundMessage')}</p>
           <Link to="/dashboard">
-            <Button>Go to Dashboard</Button>
+            <Button>{t('recipeView.goToDashboard')}</Button>
           </Link>
         </div>
       </div>
@@ -123,13 +125,13 @@ export default function RecipeView() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="text-2xl font-bold text-green-600">
-              Recipe Realm
+              {t('app.name')}
             </Link>
             <div className="flex items-center gap-4">
               {user && (
                 <Link to="/dashboard">
                   <Button variant="secondary" size="sm">
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Button>
                 </Link>
               )}
@@ -142,10 +144,10 @@ export default function RecipeView() {
         {isOwner && (
           <div className="mb-6 flex gap-3">
             <Link to={`/recipe/${id}/edit`}>
-              <Button variant="secondary">Edit Recipe</Button>
+              <Button variant="secondary">{t('recipe.editRecipe')}</Button>
             </Link>
             <Button variant="danger" onClick={() => setDeleteModalOpen(true)}>
-              Delete Recipe
+              {t('recipe.deleteRecipe')}
             </Button>
           </div>
         )}
@@ -154,23 +156,23 @@ export default function RecipeView() {
 
         <div className="mt-8 text-center">
           <Link to="/dashboard">
-            <Button variant="outline">Back to Dashboard</Button>
+            <Button variant="outline">{t('recipeView.backToDashboard')}</Button>
           </Link>
         </div>
       </div>
 
-      <Modal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} title="Delete Recipe">
+      <Modal isOpen={deleteModalOpen} onClose={() => setDeleteModalOpen(false)} title={t('recipeView.deleteConfirmTitle')}>
         <div className="mb-6">
           <p className="text-gray-700">
-            Are you sure you want to delete "{recipe.title}"? This action cannot be undone.
+            {t('recipeView.deleteConfirmMessage', { title: recipe.title })}
           </p>
         </div>
         <div className="flex gap-3 justify-end">
           <Button variant="secondary" onClick={() => setDeleteModalOpen(false)} disabled={deleting}>
-            Cancel
+            {t('common.cancel')}
           </Button>
           <Button variant="danger" onClick={handleDelete} loading={deleting}>
-            Delete
+            {t('common.delete')}
           </Button>
         </div>
       </Modal>

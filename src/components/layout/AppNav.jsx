@@ -4,22 +4,24 @@ import { useAuth } from '../../context/AuthContext.jsx';
 import { logout } from '../../services/authService.js';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '../../context/ToastContext.jsx';
+import { useTranslation } from '../../hooks/useTranslation.js';
 import Button from '../ui/Button.jsx';
 
 export default function AppNav() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const location = useLocation();
 
   const handleLogout = async () => {
     try {
       await logout();
-      showToast('Logged out successfully', 'success');
+      showToast(t('success.loggedOut'), 'success');
       navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
-      showToast('Failed to log out', 'error');
+      showToast(t('error.failedToLogout'), 'error');
     }
   };
 
@@ -32,7 +34,7 @@ export default function AppNav() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link to="/" className="text-2xl font-bold text-green-600">
-            Recipe Realm
+            {t('app.name')}
           </Link>
           <div className="flex items-center gap-6">
             {user ? (
@@ -45,7 +47,7 @@ export default function AppNav() {
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  Dashboard
+                  {t('nav.dashboard')}
                 </Link>
                 <Link
                   to="/my-recipes"
@@ -55,7 +57,7 @@ export default function AppNav() {
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  My Recipes
+                  {t('nav.myRecipes')}
                 </Link>
                 <Link
                   to="/shopping-list"
@@ -65,7 +67,7 @@ export default function AppNav() {
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  Shopping List
+                  {t('nav.shoppingList')}
                 </Link>
                 <Link
                   to="/browse"
@@ -75,22 +77,33 @@ export default function AppNav() {
                       : 'text-gray-600 hover:text-gray-900'
                   }`}
                 >
-                  Browse
+                  {t('nav.browse')}
                 </Link>
                 <span className="text-gray-700">@{user.username}</span>
+                <Link
+                  to="/settings"
+                  className={`text-2xl transition-colors ${
+                    isActive('/settings')
+                      ? 'text-green-600'
+                      : 'text-gray-600 hover:text-gray-900'
+                  }`}
+                  title={t('nav.settings')}
+                >
+                  ⚙️
+                </Link>
                 <Button onClick={handleLogout} variant="secondary" size="sm">
-                  Logout
+                  {t('nav.logout')}
                 </Button>
               </>
             ) : (
               <>
                 <Link to="/login">
                   <Button variant="secondary" size="sm">
-                    Login
+                    {t('nav.login')}
                   </Button>
                 </Link>
                 <Link to="/signup">
-                  <Button size="sm">Sign Up</Button>
+                  <Button size="sm">{t('nav.signup')}</Button>
                 </Link>
               </>
             )}

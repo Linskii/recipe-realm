@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useTranslation } from '../../hooks/useTranslation.js';
 
 export default function StarRating({
   rating,
@@ -8,6 +9,7 @@ export default function StarRating({
   showCount = false,
   ratingCount = 0
 }) {
+  const { t } = useTranslation();
   const [hoveredStar, setHoveredStar] = useState(0);
 
   const sizeClasses = {
@@ -74,13 +76,13 @@ export default function StarRating({
 
       {!readonly && hoveredStar > 0 && (
         <span className="text-sm text-gray-600 ml-1">
-          {hoveredStar} {hoveredStar === 1 ? 'star' : 'stars'}
+          {hoveredStar} {hoveredStar === 1 ? t('starRating.star') : t('starRating.stars')}
         </span>
       )}
 
       {readonly && showCount && ratingCount > 0 && (
         <span className="text-sm text-gray-600 ml-1">
-          ({ratingCount} {ratingCount === 1 ? 'rating' : 'ratings'})
+          ({ratingCount} {ratingCount === 1 ? t('starRating.rating') : t('starRating.ratings')})
         </span>
       )}
     </div>

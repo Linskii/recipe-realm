@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { useTranslation } from '../hooks/useTranslation.js';
 import { getMyRecipes } from '../services/recipeService.js';
 import {
   getUserFolders,
@@ -21,6 +22,7 @@ export default function MyRecipes() {
   const { user } = useAuth();
   const navigate = useNavigate();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const [recipes, setRecipes] = useState([]);
   const [folders, setFolders] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -46,8 +48,8 @@ export default function MyRecipes() {
       setFolders(foldersData);
     } catch (err) {
       console.error('Error loading data:', err);
-      setError(err.message || 'Failed to load data');
-      showToast('Failed to load data', 'error');
+      setError(err.message || t('error.failedToLoadData'));
+      showToast(t('error.failedToLoadData'), 'error');
     } finally {
       setLoading(false);
     }
@@ -55,62 +57,62 @@ export default function MyRecipes() {
 
   const handleCreateFolder = async () => {
     if (!newFolderName.trim()) {
-      showToast('Please enter a folder name', 'error');
+      showToast(t('validation.folderNameRequired'), 'error');
       return;
     }
 
     setIsCreatingFolder(true);
     try {
       await createFolder(user.uid, newFolderName);
-      showToast('Folder created successfully', 'success');
+      showToast(t('success.folderCreated'), 'success');
       setNewFolderName('');
       setShowNewFolderModal(false);
       loadData();
     } catch (error) {
       console.error('Error creating folder:', error);
-      showToast(error.message || 'Failed to create folder', 'error');
+      showToast(error.message || t('myRecipes.folderCreateFailed'), 'error');
     } finally {
       setIsCreatingFolder(false);
     }
   };
 
   const handleDeleteFolder = async (folderId) => {
-    if (!confirm('Are you sure you want to delete this folder? Recipes will not be deleted.')) {
+    if (!confirm(t('myRecipes.deleteFolderConfirm'))) {
       return;
     }
 
     try {
       await deleteFolder(user.uid, folderId);
-      showToast('Folder deleted successfully', 'success');
+      showToast(t('success.folderDeleted'), 'success');
       if (selectedFolder === folderId) {
         setSelectedFolder(null);
       }
       loadData();
     } catch (error) {
       console.error('Error deleting folder:', error);
-      showToast(error.message || 'Failed to delete folder', 'error');
+      showToast(error.message || t('myRecipes.folderDeleteFailed'), 'error');
     }
   };
 
   const handleAddToFolder = async (recipeId, folderId) => {
     try {
       await addRecipeToFolder(user.uid, folderId, recipeId);
-      showToast('Recipe added to folder', 'success');
+      showToast(t('success.recipeAddedToFolder'), 'success');
       loadData();
     } catch (error) {
       console.error('Error adding recipe to folder:', error);
-      showToast(error.message || 'Failed to add recipe to folder', 'error');
+      showToast(error.message || t('myRecipes.addToFolderFailed'), 'error');
     }
   };
 
   const handleRemoveFromFolder = async (recipeId, folderId) => {
     try {
       await removeRecipeFromFolder(user.uid, folderId, recipeId);
-      showToast('Recipe removed from folder', 'success');
+      showToast(t('success.recipeRemovedFromFolder'), 'success');
       loadData();
     } catch (error) {
       console.error('Error removing recipe from folder:', error);
-      showToast(error.message || 'Failed to remove recipe from folder', 'error');
+      showToast(error.message || t('myRecipes.removeFromFolderFailed'), 'error');
     }
   };
 
@@ -152,18 +154,18 @@ export default function MyRecipes() {
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">My Recipes</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t('myRecipes.title')}</h1>
             <p className="text-gray-600 mt-1">
-              {filteredRecipes.length} {filteredRecipes.length === 1 ? 'recipe' : 'recipes'}
-              {selectedFolder && ' in this folder'}
+              {filteredRecipes.length} {filteredRecipes.length === 1 ? t('myRecipes.recipe') : t('myRecipes.recipes')}
+              {selectedFolder && ` ${t('myRecipes.inThisFolder')}`}
             </p>
           </div>
           <div className="flex gap-3">
             <Button variant="secondary" onClick={() => setShowNewFolderModal(true)}>
-              New Folder
+              {t('myRecipes.newFolder')}
             </Button>
             <Link to="/recipe/new">
-              <Button>Create New Recipe</Button>
+              <Button>{t('myRecipes.createNewRecipe')}</Button>
             </Link>
           </div>
         </div>
@@ -176,7 +178,7 @@ export default function MyRecipes() {
 
         {folders.length > 0 && (
           <div className="mb-6 bg-white rounded-lg shadow-sm p-4">
-            <h2 className="text-sm font-semibold text-gray-900 mb-3">Folders</h2>
+            <h2 className="text-sm font-semibold text-gray-900 mb-3">{t('myRecipes.folders')}</h2>
             <div className="flex flex-wrap gap-2">
               <button
                 onClick={() => setSelectedFolder(null)}
@@ -186,7 +188,7 @@ export default function MyRecipes() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                All Recipes ({recipes.length})
+                {t('myRecipes.allRecipes')} ({recipes.length})
               </button>
               {folders.map((folder) => (
                 <div key={folder.id} className="relative group">
@@ -216,18 +218,18 @@ export default function MyRecipes() {
         {recipes.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">🥗</div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">No recipes yet</h2>
-            <p className="text-gray-600 mb-6">Create your first recipe to get started!</p>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t('myRecipes.noRecipesYet')}</h2>
+            <p className="text-gray-600 mb-6">{t('myRecipes.createFirstRecipe')}</p>
             <Link to="/recipe/new">
-              <Button>Create Your First Recipe</Button>
+              <Button>{t('myRecipes.createYourFirstRecipe')}</Button>
             </Link>
           </div>
         ) : filteredRecipes.length === 0 ? (
           <div className="text-center py-16">
             <div className="text-6xl mb-4">📁</div>
-            <h2 className="text-2xl font-semibold text-gray-900 mb-2">No recipes in this folder</h2>
+            <h2 className="text-2xl font-semibold text-gray-900 mb-2">{t('myRecipes.noRecipesInFolder')}</h2>
             <p className="text-gray-600 mb-6">
-              Add recipes to this folder using the folder menu on each recipe card
+              {t('myRecipes.addRecipesToFolder')}
             </p>
           </div>
         ) : (
@@ -252,16 +254,16 @@ export default function MyRecipes() {
           setShowNewFolderModal(false);
           setNewFolderName('');
         }}
-        title="Create New Folder"
+        title={t('myRecipes.createNewFolder')}
       >
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Folder Name</label>
+            <label className="block text-sm font-medium text-gray-700 mb-1">{t('myRecipes.folderName')}</label>
             <Input
               type="text"
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
-              placeholder="e.g., Desserts, Quick Meals"
+              placeholder={t('myRecipes.folderNamePlaceholder')}
               autoFocus
             />
           </div>
@@ -273,10 +275,10 @@ export default function MyRecipes() {
                 setNewFolderName('');
               }}
             >
-              Cancel
+              {t('common.cancel')}
             </Button>
             <Button onClick={handleCreateFolder} disabled={isCreatingFolder}>
-              {isCreatingFolder ? 'Creating...' : 'Create Folder'}
+              {isCreatingFolder ? t('myRecipes.creating') : t('myRecipes.createFolder')}
             </Button>
           </div>
         </div>

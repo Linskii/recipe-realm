@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
 import { useToast } from '../context/ToastContext.jsx';
+import { useTranslation } from '../hooks/useTranslation.js';
 import { getRecipe, createRecipe, updateRecipe } from '../services/recipeService.js';
 import RecipeForm from '../components/recipes/RecipeForm.jsx';
 import LoadingSpinner from '../components/ui/LoadingSpinner.jsx';
@@ -12,6 +13,7 @@ export default function RecipeEdit() {
   const navigate = useNavigate();
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { t } = useTranslation();
   const [recipe, setRecipe] = useState(null);
   const [loading, setLoading] = useState(!!id);
   const [submitting, setSubmitting] = useState(false);
@@ -32,16 +34,17 @@ export default function RecipeEdit() {
       const recipeData = await getRecipe(id);
 
       if (recipeData.createdBy !== user.uid) {
-        setError('You do not have permission to edit this recipe');
-        showToast('You do not have permission to edit this recipe', 'error');
+        const errorMsg = t('error.noPermission', { action: 'edit' });
+        setError(errorMsg);
+        showToast(errorMsg, 'error');
         return;
       }
 
       setRecipe(recipeData);
     } catch (err) {
       console.error('Error loading recipe:', err);
-      setError(err.message || 'Failed to load recipe');
-      showToast('Failed to load recipe', 'error');
+      setError(err.message || t('recipeEdit.loadError'));
+      showToast(t('recipeEdit.loadError'), 'error');
     } finally {
       setLoading(false);
     }
@@ -53,16 +56,16 @@ export default function RecipeEdit() {
 
       if (isEditMode) {
         await updateRecipe(id, formData);
-        showToast('Recipe updated successfully', 'success');
+        showToast(t('recipeEdit.updateSuccess'), 'success');
         navigate(`/recipe/${id}`);
       } else {
         const newRecipeId = await createRecipe(formData, user.uid, user.username);
-        showToast('Recipe created successfully', 'success');
+        showToast(t('recipeEdit.createSuccess'), 'success');
         navigate(`/recipe/${newRecipeId}`);
       }
     } catch (err) {
       console.error('Error saving recipe:', err);
-      showToast(`Failed to ${isEditMode ? 'update' : 'create'} recipe`, 'error');
+      showToast(t(isEditMode ? 'recipeEdit.updateError' : 'recipeEdit.createError'), 'error');
     } finally {
       setSubmitting(false);
     }
@@ -75,12 +78,12 @@ export default function RecipeEdit() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <Link to="/" className="text-2xl font-bold text-green-600">
-                Recipe Realm
+                {t('app.name')}
               </Link>
               <div className="flex items-center gap-4">
                 <Link to="/dashboard">
                   <Button variant="secondary" size="sm">
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Button>
                 </Link>
               </div>
@@ -102,12 +105,12 @@ export default function RecipeEdit() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
               <Link to="/" className="text-2xl font-bold text-green-600">
-                Recipe Realm
+                {t('app.name')}
               </Link>
               <div className="flex items-center gap-4">
                 <Link to="/dashboard">
                   <Button variant="secondary" size="sm">
-                    Dashboard
+                    {t('nav.dashboard')}
                   </Button>
                 </Link>
               </div>
@@ -116,10 +119,10 @@ export default function RecipeEdit() {
         </nav>
 
         <div className="max-w-4xl mx-auto px-4 py-16 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">Error</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{t('common.error')}</h1>
           <p className="text-gray-600 mb-6">{error}</p>
           <Link to="/dashboard">
-            <Button>Go to Dashboard</Button>
+            <Button>{t('recipeView.goToDashboard')}</Button>
           </Link>
         </div>
       </div>
@@ -132,12 +135,12 @@ export default function RecipeEdit() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <Link to="/" className="text-2xl font-bold text-green-600">
-              Recipe Realm
+              {t('app.name')}
             </Link>
             <div className="flex items-center gap-4">
               <Link to="/dashboard">
                 <Button variant="secondary" size="sm">
-                  Dashboard
+                  {t('nav.dashboard')}
                 </Button>
               </Link>
             </div>
@@ -148,12 +151,10 @@ export default function RecipeEdit() {
       <div className="max-w-4xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="mb-6">
           <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            {isEditMode ? 'Edit Recipe' : 'Create New Recipe'}
+            {t(isEditMode ? 'recipeEdit.editTitle' : 'recipeEdit.createTitle')}
           </h1>
           <p className="text-gray-600">
-            {isEditMode
-              ? 'Update the details of your recipe below'
-              : 'Fill in the details to create a new recipe'}
+            {t(isEditMode ? 'recipeEdit.editSubtitle' : 'recipeEdit.createSubtitle')}
           </p>
         </div>
 
@@ -163,7 +164,7 @@ export default function RecipeEdit() {
 
         <div className="mt-6 text-center">
           <Link to={isEditMode ? `/recipe/${id}` : '/dashboard'}>
-            <Button variant="outline">Cancel</Button>
+            <Button variant="outline">{t('common.cancel')}</Button>
           </Link>
         </div>
       </div>

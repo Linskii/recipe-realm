@@ -27,7 +27,9 @@ export async function signUp(email, password, username, displayName) {
   // Check username availability
   const isAvailable = await checkUsernameAvailable(username);
   if (!isAvailable) {
-    throw new Error('Username is already taken');
+    const error = new Error('error.auth.usernameInUse');
+    error.code = 'auth/username-in-use';
+    throw error;
   }
 
   // Create auth user
@@ -75,13 +77,15 @@ export function onAuthChange(callback) {
 
 export function getErrorMessage(error) {
   const errorMessages = {
-    'auth/email-already-in-use': 'This email is already registered',
-    'auth/invalid-email': 'Invalid email address',
-    'auth/weak-password': 'Password should be at least 6 characters',
-    'auth/user-not-found': 'No account found with this email',
-    'auth/wrong-password': 'Incorrect password',
-    'auth/too-many-requests': 'Too many failed attempts. Please try again later',
+    'auth/email-already-in-use': 'error.auth.emailInUse',
+    'auth/invalid-email': 'error.auth.invalidEmail',
+    'auth/weak-password': 'error.auth.weakPassword',
+    'auth/user-not-found': 'error.auth.userNotFound',
+    'auth/wrong-password': 'error.auth.wrongPassword',
+    'auth/invalid-credential': 'error.auth.invalidCredential',
+    'auth/too-many-requests': 'error.auth.tooManyRequests',
+    'auth/username-in-use': 'error.auth.usernameInUse',
   };
 
-  return errorMessages[error.code] || error.message || 'An error occurred';
+  return errorMessages[error.code] || error.message || 'error.generic';
 }
