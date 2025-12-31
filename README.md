@@ -1,5 +1,7 @@
 # Recipe Realm 🥗
 
+**🌐 Try it now:** [https://linskii.github.io/recipe-realm/](https://linskii.github.io/recipe-realm/)
+
 A modern, feature-rich vegetarian recipe sharing web application built with React, Firebase, and Tailwind CSS.
 
 ## Features
