@@ -10,7 +10,9 @@
     "login": "Anmelden",
     "signup": "Registrieren",
     "logout": "Abmelden",
-    "settings": "Einstellungen"
+    "settings": "Einstellungen",
+    "menu": "Menü",
+    "closeMenu": "Menü schließen"
   },
   "common": {
     "loading": "Lädt...",

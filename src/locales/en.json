@@ -10,7 +10,9 @@
     "login": "Login",
     "signup": "Sign Up",
     "logout": "Logout",
-    "settings": "Settings"
+    "settings": "Settings",
+    "menu": "Menu",
+    "closeMenu": "Close Menu"
   },
   "common": {
     "loading": "Loading...",
